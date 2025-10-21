@@ -1,11 +1,10 @@
-// Variable global para el presupuesto
 let presupuesto = 0;
 
-// NEW: Global variables for Practical 2
+
 let gastos = [];
 let idGasto = 0;
 
-// Función para actualizar el presupuesto
+
 function actualizarPresupuesto(cantidad) {
     if (typeof cantidad === 'number' && cantidad >= 0) {
         presupuesto = cantidad;
@@ -16,14 +15,14 @@ function actualizarPresupuesto(cantidad) {
     }
 }
 
-// Función para mostrar el presupuesto
+
 function mostrarPresupuesto() {
-    return `Tu presupuesto actual es de ${presupuesto} €`;
+    return `tu presupuesto actual es de ${presupuesto} €`;
 }
 
-// Función constructora para crear gastos - UPDATED for Practical 2
+
 function CrearGasto(descripcion, valor, fecha, ...etiquetas) {
-    // Validar que el valor sea un número no negativo
+    
     if (typeof valor === 'number' && valor >= 0) {
         this.valor = valor;
     } else {
@@ -32,7 +31,7 @@ function CrearGasto(descripcion, valor, fecha, ...etiquetas) {
     
     this.descripcion = descripcion;
     
-    // NEW: Handle fecha
+    //  Handle date
     if (fecha) {
         const timestamp = Date.parse(fecha);
         this.fecha = isNaN(timestamp) ? Date.now() : timestamp;
@@ -40,10 +39,10 @@ function CrearGasto(descripcion, valor, fecha, ...etiquetas) {
         this.fecha = Date.now();
     }
     
-    // NEW: Handle etiquetas - FIXED: Add directly without calling method
+   
     this.etiquetas = [];
     if (etiquetas.length > 0) {
-        // Add etiquetas directly, removing duplicates
+        
         etiquetas.forEach(etiqueta => {
             if (!this.etiquetas.includes(etiqueta)) {
                 this.etiquetas.push(etiqueta);
@@ -52,7 +51,7 @@ function CrearGasto(descripcion, valor, fecha, ...etiquetas) {
     }
 }
 
-// Original methods from Practical 1
+
 CrearGasto.prototype.mostrarGasto = function() {
     return `Gasto correspondiente a ${this.descripcion} con valor ${this.valor} €`;
 };
@@ -67,7 +66,7 @@ CrearGasto.prototype.actualizarValor = function(nuevoValor) {
     }
 };
 
-// NEW: Additional methods for Practical 2
+                            //  methods  Practical 2
 CrearGasto.prototype.mostrarGastoCompleto = function() {
     const fechaFormateada = new Date(this.fecha).toLocaleString();
     
@@ -78,7 +77,7 @@ CrearGasto.prototype.mostrarGastoCompleto = function() {
         etiquetasText = '(sin etiquetas)';
     }
     
-    // Add a trailing newline after the etiquetas block to match test expected string
+    
     return `Gasto correspondiente a ${this.descripcion} con valor ${this.valor} €.
 Fecha: ${fechaFormateada}
 Etiquetas:
@@ -91,7 +90,7 @@ CrearGasto.prototype.actualizarFecha = function(nuevaFecha) {
     if (!isNaN(timestamp)) {
         this.fecha = timestamp;
     }
-    // If invalid, leave unchanged
+   
 };
 
 CrearGasto.prototype.anyadirEtiquetas = function(...nuevasEtiquetas) {
@@ -108,7 +107,23 @@ CrearGasto.prototype.borrarEtiquetas = function(...etiquetasABorrar) {
     );
 };
 
-// NEW: Global functions for Practical 2
+//  Practical 3
+CrearGasto.prototype.obtenerPeriodoAgrupacion = function(periodo) {
+    const date = new Date(this.fecha);
+    
+    switch(periodo) {
+        case 'dia':
+            return date.toISOString().split('T')[0]; 
+        case 'mes':
+            return date.toISOString().substring(0, 7); // yyyy-mm
+        case 'anyo':
+            return date.getFullYear().toString();
+        default:
+            return date.toISOString().substring(0, 7); 
+    }
+};
+
+
 function listarGastos() {
     return gastos;
 }
@@ -134,15 +149,97 @@ function calcularBalance() {
     return presupuesto - calcularTotalGastos();
 }
 
+// Functions  3
+function filtrarGastos(filtros = {}) {
+    return gastos.filter(gasto => {
+        
+        if (filtros.fechaDesde) {
+            const fechaDesdeTimestamp = Date.parse(filtros.fechaDesde);
+            if (!isNaN(fechaDesdeTimestamp) && gasto.fecha < fechaDesdeTimestamp) {
+                return false;
+            }
+        }
+        
+        
+        if (filtros.fechaHasta) {
+            const fechaHastaTimestamp = Date.parse(filtros.fechaHasta);
+            if (!isNaN(fechaHastaTimestamp) && gasto.fecha > fechaHastaTimestamp) {
+                return false;
+            }
+        }
+        
+        if (filtros.valorMinimo !== undefined && gasto.valor < filtros.valorMinimo) {
+            return false;
+        }
+        
+        
+        if (filtros.valorMaximo !== undefined && gasto.valor > filtros.valorMaximo) {
+            return false;
+        }
+        
+        
+        if (filtros.descripcionContiene) {
+            const descripcionLower = gasto.descripcion.toLowerCase();
+            const busquedaLower = filtros.descripcionContiene.toLowerCase();
+            if (!descripcionLower.includes(busquedaLower)) {
+                return false;
+            }
+        }
+        
+        
+        if (filtros.etiquetasTiene && filtros.etiquetasTiene.length > 0) {
+            const tieneEtiqueta = filtros.etiquetasTiene.some(etiquetaFiltro => 
+                gasto.etiquetas.some(etiquetaGasto => 
+                    etiquetaGasto.toLowerCase() === etiquetaFiltro.toLowerCase()
+                )
+            );
+            if (!tieneEtiqueta) {
+                return false;
+            }
+        }
+        
+        return true;
+    });
+}
+
+function agruparGastos(periodo = 'mes', etiquetas = [], fechaDesde, fechaHasta) {
+
+    const filtros = {};
+    
+    if (fechaDesde) filtros.fechaDesde = fechaDesde;
+    if (fechaHasta) filtros.fechaHasta = fechaHasta;
+    if (etiquetas.length > 0) filtros.etiquetasTiene = etiquetas;
+    
+   
+    const gastosFiltrados = filtrarGastos(filtros);
+    
+    
+    const agrupacion = gastosFiltrados.reduce((acumulador, gasto) => {
+        const periodoKey = gasto.obtenerPeriodoAgrupacion(periodo);
+        
+        if (!acumulador[periodoKey]) {
+            acumulador[periodoKey] = 0;
+        }
+        
+        acumulador[periodoKey] += gasto.valor;
+        
+        return acumulador;
+    }, {});
+    
+    return agrupacion;
+}
+
 export {
     actualizarPresupuesto,
     mostrarPresupuesto,
     CrearGasto,
     presupuesto,
-    // NEW: Export the new functions
     listarGastos,
     anyadirGasto,
     borrarGasto,
     calcularTotalGastos,
-    calcularBalance
+    calcularBalance,
+    // this functions for Practical 3
+    filtrarGastos,
+    agruparGastos
 };
