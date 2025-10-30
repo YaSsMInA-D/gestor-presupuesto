@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Presupuesto Personal</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        h2 { color: #333; }
+        .gasto-item { background: #f9f9f9; margin: 10px 0; padding: 10px; border-left: 4px solid #007cba; }
+        button { background: #dc3545; color: white; border: none; padding: 5px 10px; cursor: pointer; }
+        button:hover { background: #c82333; }
+        form { display: grid; gap: 10px; max-width: 400px; }
+        input, textarea { padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>💰 Gestor de Presupuesto Personal</h1>
+    
+
+    <div class="container">
+        <h2>Resumen</h2>
+        <div id="total-gastos">Total de gastos: 0€</div>
+        <div id="balance">Balance: 0€</div>
+    </div>
+
+  
+    <div class="container">
+        <h2>➕ Añadir Nuevo Gasto</h2>
+        <div id="formulario-gasto">
+         
+        </div>
+    </div>
+
+  
+    <div class="container">
+        <h2>📋 Listado de Gastos</h2>
+        <div id="listado-gastos">
+           
+        </div>
+    </div>
+
+    <!-- Load JavaScript files -->
+    <script type="module" src="js/gestionPresupuestoWebVI.js"></script>
+</body>
+</html>

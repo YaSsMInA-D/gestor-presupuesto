@@ -31,7 +31,7 @@ function CrearGasto(descripcion, valor, fecha, ...etiquetas) {
     
     this.descripcion = descripcion;
     
-    //  Handle date
+    
     if (fecha) {
         const timestamp = Date.parse(fecha);
         this.fecha = isNaN(timestamp) ? Date.now() : timestamp;
@@ -116,7 +116,7 @@ CrearGasto.prototype.obtenerPeriodoAgrupacion = function(periodo) {
             return date.toISOString().split('T')[0]; 
         case 'mes':
             return date.toISOString().substring(0, 7); // yyyy-mm
-        case 'anyo':
+        case 'ano':
             return date.getFullYear().toString();
         default:
             return date.toISOString().substring(0, 7); 
@@ -239,7 +239,7 @@ export {
     borrarGasto,
     calcularTotalGastos,
     calcularBalance,
-    // this functions for Practical 3
+    // functions for Practical 3
     filtrarGastos,
     agruparGastos
 };
